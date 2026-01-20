@@ -705,16 +705,19 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <button onClick={onBack} className="flex items-center text-gray-500 hover:text-[#25a18e] mb-6">
-        <ArrowLeft size={18} className="mr-2" /> Kembali ke Keranjang
+    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-6 md:py-12">
+      <button onClick={onBack} className="group flex items-center text-gray-500 hover:text-[#25a18e] mb-8 font-semibold transition-all">
+        <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center mr-3 group-hover:border-[#25a18e]/30 group-hover:shadow-md transition-all">
+          <ArrowLeft size={16} />
+        </div>
+        Kembali ke Keranjang
       </button>
 
-      <h2 className="text-2xl font-bold mb-6">Checkout & Pengiriman</h2>
+      <h2 className="text-3xl md:text-4xl font-black text-gray-800 mb-8 tracking-tight">Checkout & Pengiriman</h2>
 
-      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10 items-start">
+        <div className="lg:col-span-2 space-y-6 md:space-y-8">
+          <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <User size={20} className="text-[#25a18e]" /> Data Penerima
             </h3>
@@ -755,7 +758,7 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <Calendar size={20} className="text-[#25a18e]" /> Jadwal & Catatan
             </h3>
@@ -779,9 +782,9 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
               </div>
 
               {/* Time Slot Selector */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Waktu (Bisa pilih Lebih dari 1)</label>
-                <div className="grid grid-cols-3 gap-3">
+              <div className="pt-2">
+                <label className="block text-sm font-bold text-gray-700 mb-3">Pilih Waktu (Bisa pilih Lebih dari 1)</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {timeSlots.map(slot => (
                     <div
                       key={slot.id}
@@ -810,8 +813,8 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="lg:col-span-1 space-y-6 md:space-y-8">
+          <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <CreditCard size={20} className="text-[#25a18e]" /> Metode Pembayaran
             </h3>
@@ -835,7 +838,7 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
               </label>
 
               {formData.paymentMethod === 'transfer' && (
-                <div className="grid grid-cols-3 gap-2 mt-2 animate-fade-in">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 animate-fade-in px-1">
                   {banks.map(bank => (
                     <div
                       key={bank.id}
@@ -882,7 +885,7 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
             </div>
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+          <div className="bg-gray-50 p-5 sm:p-8 rounded-3xl border border-gray-200">
             <h3 className="font-bold text-gray-800 mb-4">Ringkasan Pesanan</h3>
             <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
               {cart.map(item => (
@@ -898,7 +901,7 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
             </div>
             <button
               type="submit"
-              className="w-full bg-[#25a18e] text-white py-3 rounded-xl font-bold hover:bg-[#7ae582] transition shadow-lg shadow-[#25a18e]/20"
+              className="w-full bg-[#25a18e] text-white py-4 rounded-2xl font-black text-lg hover:bg-[#25a18e]/90 active:scale-[0.98] transition-all shadow-xl shadow-[#25a18e]/20"
             >
               Buat Pesanan
             </button>
@@ -1065,7 +1068,7 @@ const InvoiceView = ({ order, onViewChange, onUploadProof }) => {
             </div>
           )}
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => window.print()}
               className="flex-1 border border-gray-200 py-4 rounded-2xl font-black text-gray-600 hover:bg-gray-50 transition"
@@ -1074,7 +1077,7 @@ const InvoiceView = ({ order, onViewChange, onUploadProof }) => {
             </button>
             <button
               onClick={() => onViewChange('home')}
-              className="flex-1 bg-[#25a18e] text-white py-4 rounded-2xl font-black text-lg hover:bg-[#7ae582] transition shadow-lg shadow-[#25a18e]/20"
+              className="flex-1 bg-[#25a18e] text-white py-4 rounded-2xl font-black text-lg hover:bg-[#25a18e]/90 transition shadow-lg shadow-[#25a18e]/20"
             >
               Belanja Lagi
             </button>
