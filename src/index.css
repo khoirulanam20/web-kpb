@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@layer base {
+    body {
+        @apply antialiased;
+    }
+}
+
+@keyframes slide-right {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-subtle {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes bounce-slow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate-slide-right {
+    animation: slide-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+}
+
+.animate-pulse-subtle {
+    animation: pulse-subtle 2s infinite;
+}
+
+.animate-bounce-slow {
+    animation: bounce-slow 3s infinite;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #25a18e;
+}

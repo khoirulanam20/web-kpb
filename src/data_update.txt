@@ -1,0 +1,97 @@
+const PROMO_BANNERS = [
+  { id: 1, image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800", title: "Diskon Akhir Pekan", subtitle: "Hemat hingga 20%" },
+  { id: 2, image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=800", title: "Produk Segar Baru", subtitle: "Langsung dari sumbernya" },
+];
+
+const CATEGORIES = [
+  {
+    id: 'beras-biji',
+    name: "Beras & Biji",
+    icon: "🍚",
+    subcategories: ["Beras", "Kacang", "Biji-bijian"]
+  },
+  {
+    id: 'minyak-goreng',
+    name: "Minyak Goreng",
+    icon: "💧",
+    subcategories: ["Minyak Kelapa", "Minyak Sawit"]
+  },
+  {
+    id: 'bumbu-dapur',
+    name: "Bumbu Dapur",
+    icon: "🧂",
+    subcategories: ["Gula", "Garam", "Tepung", "Penyedap"]
+  },
+  {
+    id: 'sabun-cuci',
+    name: "Sabun & Cuci",
+    icon: "🧼",
+    subcategories: ["Detergent", "Pembersih Lantai"]
+  },
+  {
+    id: 'telur-susu',
+    name: "Telur & Susu",
+    icon: "🥚",
+    subcategories: ["Telur", "Susu", "Keju"]
+  },
+  {
+    id: 'hot-deals',
+    name: "Hot Deals",
+    icon: "🔥",
+    subcategories: ["Bblm", "Harga Spesial"]
+  },
+  {
+    id: 'biscuit-snacks',
+    name: "Biscuit/Snacks",
+    icon: "🍪",
+    subcategories: ["Biscuit", "Snacks", "Wafer"]
+  },
+  {
+    id: 'interior-bedding',
+    name: "Interior & Bedding",
+    icon: "🛏️",
+    subcategories: ["Bantal", "Sprei"]
+  },
+  {
+    id: 'bulk-product',
+    name: "Bulk Product",
+    icon: "📦",
+    subcategories: ["Kartonan"]
+  },
+  {
+    id: 'hb',
+    name: "H&B",
+    icon: "🧴",
+    subcategories: ["Sabun Mandi", "Shampoo"]
+  },
+  {
+    id: 'sauces-spices',
+    name: "Sauces & Spices",
+    icon: "🧂",
+    subcategories: ["Kecap", "Saus Sambal"]
+  },
+  {
+    id: 'milk-coffee-tea',
+    name: "Milk/Coffee/Tea",
+    icon: "☕",
+    subcategories: ["Susu", "Kopi", "Teh"]
+  },
+  {
+    id: 'drinks',
+    name: "Drinks",
+    icon: "🥤",
+    subcategories: ["Air Mineral", "Minuman Berasa"]
+  },
+  {
+    id: 'fish',
+    name: "Fish",
+    icon: "🐟",
+    subcategories: ["Ikan Laut", "Ikan Tawar"]
+  },
+  {
+    id: 'meat',
+    name: "Meat",
+    icon: "🥩",
+    subcategories: ["Sapi", "Ayam"]
+  },
+];
