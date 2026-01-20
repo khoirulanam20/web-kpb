@@ -655,23 +655,30 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
     name: '',
     phone: '',
     address: '',
-    deliveryDates: [], // Modified
-    deliveryTimes: [], // Modified
+    deliverySchedules: {}, // { 'YYYY-MM-DD': ['Time Slot'] }
     notes: '',
     paymentMethod: 'transfer',
     selectedBank: '',
     paymentTerm: 'now'
   });
 
-  const toggleArrayItem = (field, value) => {
+  const toggleDeliverySchedule = (dateValue, timeSlot) => {
     setFormData(prev => {
-      const current = prev[field] || [];
-      return {
-        ...prev,
-        [field]: current.includes(value)
-          ? current.filter(v => v !== value)
-          : [...current, value]
-      };
+      const currentSchedules = { ...prev.deliverySchedules };
+      const currentTimes = currentSchedules[dateValue] || [];
+
+      if (currentTimes.includes(timeSlot)) {
+        const nextTimes = currentTimes.filter(t => t !== timeSlot);
+        if (nextTimes.length === 0) {
+          delete currentSchedules[dateValue];
+        } else {
+          currentSchedules[dateValue] = nextTimes;
+        }
+      } else {
+        currentSchedules[dateValue] = [...currentTimes, timeSlot];
+      }
+
+      return { ...prev, deliverySchedules: currentSchedules };
     });
   };
 
@@ -692,7 +699,7 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.deliveryDates.length === 0 || formData.deliveryTimes.length === 0) {
+    if (Object.keys(formData.deliverySchedules).length === 0) {
       alert("Mohon pilih setidaknya satu tanggal dan waktu pengiriman.");
       return;
     }
@@ -764,37 +771,46 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
             <div className="space-y-6">
               {/* Enhanced Date Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Tanggal Pengiriman (Bisa pilih Lebih dari 1)</label>
-                <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-                  {availableDates.map(date => (
-                    <div
-                      key={date.value}
-                      onClick={() => toggleArrayItem('deliveryDates', date.value)}
-                      className={`min-w-[100px] p-3 rounded-xl border cursor-pointer transition text-center flex-shrink-0
-                          ${formData.deliveryDates.includes(date.value) ? 'border-[#25a18e] bg-[#25a18e] text-white shadow-md' : 'border-gray-200 hover:border-[#25a18e] bg-white'}`}
-                    >
-                      <span className="block text-xs font-semibold opacity-80 uppercase">{date.simpleLabel}</span>
-                      <span className="block text-sm font-bold">{date.label.split(',')[1]}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Pilih Hari & Jam:</label>
+                <div className="space-y-2">
+                  {availableDates.map(date => {
+                    const selectedTimes = formData.deliverySchedules[date.value] || [];
+                    const isAnySelected = selectedTimes.length > 0;
 
-              {/* Time Slot Selector */}
-              <div className="pt-2">
-                <label className="block text-sm font-bold text-gray-700 mb-3">Pilih Waktu (Bisa pilih Lebih dari 1)</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {timeSlots.map(slot => (
-                    <div
-                      key={slot.id}
-                      onClick={() => toggleArrayItem('deliveryTimes', slot.time)}
-                      className={`p-2 rounded-lg border cursor-pointer text-center transition
-                          ${formData.deliveryTimes.includes(slot.time) ? 'border-[#25a18e] bg-[#25a18e]/10 text-[#25a18e] font-black' : 'border-gray-200 hover:border-[#25a18e] bg-white'}`}
-                    >
-                      <span className="block text-xs font-bold">{slot.label}</span>
-                      <span className="block text-[10px] text-gray-500">{slot.time}</span>
-                    </div>
-                  ))}
+                    return (
+                      <div
+                        key={date.value}
+                        className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-2xl border transition-all
+                          ${isAnySelected ? 'border-[#25a18e] bg-white shadow-sm' : 'border-gray-100 bg-gray-50/50'}`}
+                      >
+                        <div className="flex items-center gap-2 mb-2 sm:mb-0">
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isAnySelected ? 'bg-[#25a18e] text-white' : 'bg-gray-200 text-gray-400'}`}>
+                            {isAnySelected ? <CheckCircle size={10} /> : <Calendar size={10} />}
+                          </div>
+                          <div className="leading-tight">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase block leading-none">{date.simpleLabel}</span>
+                            <span className="text-xs font-black text-gray-700 block">{date.label.split(',')[1]}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-1">
+                          {timeSlots.map(slot => (
+                            <button
+                              key={slot.id}
+                              type="button"
+                              onClick={() => toggleDeliverySchedule(date.value, slot.time)}
+                              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-[10px] font-black border transition-all active:scale-95
+                                ${selectedTimes.includes(slot.time)
+                                  ? 'bg-[#25a18e] border-[#25a18e] text-white'
+                                  : 'bg-white border-gray-200 text-gray-400 hover:border-[#25a18e]/30'}`}
+                            >
+                              {slot.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -970,9 +986,22 @@ const InvoiceView = ({ order, onViewChange, onUploadProof }) => {
                   <Truck size={16} />
                   <span className="font-bold">Jadwal Pengiriman:</span>
                 </div>
-                <div className="pl-6 space-y-1">
-                  <p>Tanggal: {order.customer.deliveryDates?.map(d => new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })).join(', ')}</p>
-                  <p>Waktu: {order.customer.deliveryTimes?.join(', ')}</p>
+                <div className="pl-6 space-y-2">
+                  {order.customer.deliverySchedules && Object.entries(order.customer.deliverySchedules).map(([date, times]) => (
+                    <div key={date} className="bg-white/50 p-2 rounded-lg border border-[#25a18e]/10">
+                      <p className="font-bold text-gray-700 leading-none mb-1">
+                        {new Date(date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}
+                      </p>
+                      <p className="text-[10px] text-[#25a18e] font-black">{times.join(' • ')}</p>
+                    </div>
+                  ))}
+                  {/* Fallback for legacy orders */}
+                  {!order.customer.deliverySchedules && (
+                    <>
+                      <p>Tanggal: {order.customer.deliveryDates?.map(d => new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })).join(', ')}</p>
+                      <p>Waktu: {order.customer.deliveryTimes?.join(', ')}</p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
