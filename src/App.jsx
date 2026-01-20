@@ -327,8 +327,7 @@ const Sidebar = ({ isOpen, onClose, categories, onSelectCategory }) => {
                   }
                 }}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{cat.icon}</span>
+                <div className="flex items-center">
                   <span className={`text-sm font-bold ${expanded === cat.id ? 'text-[#25a18e]' : 'text-gray-700'}`}>
                     {cat.name}
                   </span>
