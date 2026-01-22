@@ -145,6 +145,61 @@ const getNextDays = (daysCount = 5) => {
 const generateInvoiceId = () => `INV-${new Date().getFullYear()}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
 
 // --- COMPONENTS ---
+const CustomModal = ({ isOpen, title, message, type, onConfirm, onCancel, confirmText, cancelText }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
+        onClick={type === 'alert' ? onConfirm : onCancel}
+      />
+
+      {/* Modal Card */}
+      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-zoom-in">
+        <div className="p-8 text-center">
+          <div className="mb-6 flex justify-center">
+            {type === 'confirm' ? (
+              <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-amber-500">
+                <Clock size={40} />
+              </div>
+            ) : title?.toLowerCase().includes('berhasil') ? (
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-500">
+                <CheckCircle size={40} />
+              </div>
+            ) : (
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+                <ShoppingCart size={40} />
+              </div>
+            )}
+          </div>
+
+          <h3 className="text-xl font-black text-gray-800 mb-3">{title}</h3>
+          <p className="text-gray-500 text-sm font-medium leading-relaxed">{message}</p>
+        </div>
+
+        <div className="flex border-t border-gray-100">
+          {type === 'confirm' && (
+            <button
+              onClick={onCancel}
+              className="flex-1 py-4 text-sm font-bold text-gray-400 hover:bg-gray-50 transition border-r border-gray-100"
+            >
+              {cancelText || 'Batal'}
+            </button>
+          )}
+          <button
+            onClick={onConfirm}
+            className={`flex-1 py-4 text-sm font-black transition ${type === 'confirm' ? 'text-[#25a18e] hover:bg-[#25a18e]/5' : 'bg-[#25a18e] text-white hover:bg-[#25a18e]/90'}`}
+          >
+            {confirmText || 'OK'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 // 1. Footer Component (New)
 const Footer = () => (
@@ -650,7 +705,7 @@ const CartView = ({ cart, updateQty, removeFromCart, checkout }) => {
 };
 
 // 5. Checkout View (Enhanced with Bank Selection)
-const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
+const CheckoutView = ({ cart, onSubmitOrder, onBack, onShowModal }) => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -700,14 +755,29 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (Object.keys(formData.deliverySchedules).length === 0) {
-      alert("Mohon pilih setidaknya satu tanggal dan waktu pengiriman.");
+      onShowModal({
+        title: "Pilih Jadwal",
+        message: "Mohon pilih setidaknya satu tanggal dan waktu pengiriman.",
+        type: "alert"
+      });
       return;
     }
     if (formData.paymentMethod === 'transfer' && !formData.selectedBank) {
-      alert("Mohon pilih bank tujuan transfer.");
+      onShowModal({
+        title: "Pilih Bank",
+        message: "Mohon pilih bank tujuan transfer.",
+        type: "alert"
+      });
       return;
     }
-    onSubmitOrder(formData);
+
+    onShowModal({
+      title: "Konfirmasi Pesanan",
+      message: "Pastikan jumlah barang yang dipesan sudah sesuai. Apakah Anda yakin ingin melanjutkan checkout?",
+      type: "confirm",
+      confirmText: "Ya, Lanjutkan",
+      onConfirm: () => onSubmitOrder(formData)
+    });
   };
 
   return (
@@ -928,7 +998,7 @@ const CheckoutView = ({ cart, onSubmitOrder, onBack }) => {
 };
 
 // 6. Invoice/Detail Order View (Updated with Selected Bank)
-const InvoiceView = ({ order, onViewChange, onUploadProof }) => {
+const InvoiceView = ({ order, onViewChange, onUploadProof, onEditOrder }) => {
   if (!order) return null;
 
   const isOverdue = new Date() > new Date(order.dueDate) && order.status !== 'paid';
@@ -1096,6 +1166,41 @@ const InvoiceView = ({ order, onViewChange, onUploadProof }) => {
             </div>
           )}
 
+          {['pending', 'verification'].includes(order.status) ? (
+            <div className="mb-6 p-5 bg-amber-50 border border-amber-200 rounded-[2rem] shadow-sm">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center shrink-0">
+                  <Clock size={24} className="text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-black text-amber-800 mb-1">Butuh Mengubah Pesanan?</p>
+                  <p className="text-xs text-amber-700/80 mb-4 font-medium leading-relaxed">
+                    Anda masih bisa mengedit pesanan ini selama status belum dikonfirmasi oleh Admin.
+                    Barang akan dikembalikan ke keranjang jika Anda memilih untuk mengedit.
+                  </p>
+                  <button
+                    onClick={() => onEditOrder(order)}
+                    className="flex items-center gap-2 text-xs font-black bg-white border border-amber-200 text-amber-700 px-5 py-2.5 rounded-xl hover:bg-amber-100 transition shadow-sm active:scale-95"
+                  >
+                    <FileText size={16} /> Edit Pesanan Sekarang
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (order.status !== 'canceled' && order.status !== 'paid') && (
+            <div className="mb-6 p-5 bg-gray-50 border border-gray-100 rounded-[2rem]">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center shrink-0">
+                  <CheckCircle size={24} className="text-gray-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-gray-400">Pesanan Terkunci</p>
+                  <p className="text-xs text-gray-400 font-medium">Pesanan telah dikonfirmasi oleh Admin. Perubahan pesanan sudah tidak dapat dilakukan.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => window.print()}
@@ -1187,6 +1292,37 @@ export default function App() {
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  // Modal State
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'alert', // alert, confirm
+    onConfirm: () => { },
+    onCancel: () => { },
+    confirmText: '',
+    cancelText: ''
+  });
+
+  const showCustomModal = (config) => {
+    setModalConfig({
+      isOpen: true,
+      title: config.title || 'Informasi',
+      message: config.message || '',
+      type: config.type || 'alert',
+      onConfirm: () => {
+        if (config.onConfirm) config.onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => {
+        if (config.onCancel) config.onCancel();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText: config.confirmText,
+      cancelText: config.cancelText
+    });
+  };
+
   // Load from local storage
   useEffect(() => {
     const savedCart = localStorage.getItem('koperasi_cart');
@@ -1231,7 +1367,11 @@ export default function App() {
     });
     // Notification simulation or just visual feedback
     if (view === 'productDetail') {
-      alert("Produk berhasil ditambahkan ke keranjang!");
+      showCustomModal({
+        title: "Keranjang Belanja",
+        message: "Produk berhasil ditambahkan ke keranjang!",
+        type: "alert"
+      });
     }
   };
 
@@ -1275,12 +1415,37 @@ export default function App() {
     const updatedOrders = orders.map(o => o.id === orderId ? { ...o, status: 'verification' } : o);
     setOrders(updatedOrders);
     setActiveOrder(updatedOrders.find(o => o.id === orderId));
-    alert("Bukti pembayaran berhasil diupload! Admin akan melakukan verifikasi.");
+    showCustomModal({
+      title: "Success Upload",
+      message: "Bukti pembayaran berhasil diupload! Admin akan melakukan verifikasi.",
+      type: "alert"
+    });
   };
 
   const handleViewOrder = (order) => {
     setActiveOrder(order);
     setView('invoice');
+  };
+
+  const handleEditOrder = (order) => {
+    showCustomModal({
+      title: "Edit Pesanan",
+      message: "Apakah Anda yakin ingin mengedit pesanan ini? Pesanan saat ini akan dibatalkan/dihapus dan item akan dikembalikan ke keranjang.",
+      type: "confirm",
+      confirmText: "Ya, Edit",
+      onConfirm: () => {
+        setCart(order.items);
+        setOrders(prev => prev.filter(o => o.id !== order.id));
+        setView('cart');
+        setTimeout(() => {
+          showCustomModal({
+            title: "Siap Diedit",
+            message: "Item pesanan telah dikembalikan ke keranjang. Silakan sesuaikan jumlah barang.",
+            type: "alert"
+          });
+        }, 300);
+      }
+    });
   };
 
   return (
@@ -1412,6 +1577,7 @@ export default function App() {
             cart={cart}
             onSubmitOrder={handleOrderSubmit}
             onBack={() => setView('cart')}
+            onShowModal={showCustomModal}
           />
         )}
 
@@ -1420,6 +1586,7 @@ export default function App() {
             order={activeOrder}
             onViewChange={setView}
             onUploadProof={handleUploadProof}
+            onEditOrder={handleEditOrder}
           />
         )}
 
@@ -1456,6 +1623,8 @@ export default function App() {
           <span className="text-[10px] font-bold">Keranjang</span>
         </button>
       </div>
+
+      <CustomModal {...modalConfig} />
     </div>
   );
 }
